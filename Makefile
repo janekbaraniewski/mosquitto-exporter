@@ -1,11 +1,10 @@
 PKG_NAME:=github.com/sapcc/mosquitto-exporter
-BUILD_DIR:=bin
-MOSQUITTO_EXPORTER_BINARY:=$(BUILD_DIR)/mosquitto_exporter
-IMAGE := sapcc/mosquitto-exporter
+BUILD_DOCKER_DIR:=/builds
+MOSQUITTO_EXPORTER_DOCKER_PATH:=$(BUILD_DOCKER_DIR)/mosquitto_exporter
+IMAGE := janekbaraniewski/mosquitto-exporter
 VERSION=0.6.0
 LDFLAGS=-s -w -X main.Version=$(VERSION) -X main.GITCOMMIT=`git rev-parse --short HEAD`
 CGO_ENABLED=0
-GOARCH=amd64
 .PHONY: help
 help:
 	@echo
@@ -15,14 +14,21 @@ help:
 	@echo "  * docker            - build docker image"
 
 .PHONY: build
-build:
-	@mkdir -p $(BUILD_DIR)
-	go build -o $(MOSQUITTO_EXPORTER_BINARY) -ldflags="$(LDFLAGS)" $(PKG_NAME)
 
-linux: export GOOS=linux
-linux: build
+go.build:
+	@mkdir -p $(BUILD_DOCKER_DIR)
+	go build -o $(MOSQUITTO_EXPORTER_DOCKER_PATH) -ldflags="$(LDFLAGS)" $(PKG_NAME)
 
-docker: linux
+docker.release:
+	docker buildx build \
+		--no-cache \
+		--build-arg \
+		PKG_NAME=$(PKG_NAME) \
+		--platform linux/amd64,linux/arm64,linux/arm/v6,linux/arm/v7 \
+		--push \
+		-t $(IMAGE):$(VERSION) .
+
+docker:
 	docker build -t $(IMAGE):$(VERSION) .
 
 push:
