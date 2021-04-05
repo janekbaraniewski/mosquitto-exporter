@@ -1,0 +1,15 @@
+{{- if .serviceMonitor.enabled | default false }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "mosquitto-prometheus-exporter.fullname" . }}
+  labels:
+    {{- include "mosquitto-prometheus-exporter.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "mosquitto-prometheus-exporter.labels" . | nindent 6 }}
+  endpoints:
+  - port: metrics
+    path: /metrics
+{{- end -}}
