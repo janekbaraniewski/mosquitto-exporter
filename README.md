@@ -1,5 +1,16 @@
 Mosquitto Exporter
 =============================
+
+What's different in this fork:
+---
+- support for multiplatform builds
+- multistage dockerfile build
+- helm chart for k8s deployments
+
+Docker images are available [here](https://hub.docker.com/repository/docker/janekbaraniewski/mosquitto-exporter)
+
+---
+
 Prometheus exporter for the [Mosquitto MQTT message broker](https://mosquitto.org/).
 
 There is a docker image available:
